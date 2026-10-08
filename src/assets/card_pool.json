@@ -1,0 +1,17 @@
+{
+
+    "Strike": { 
+        "id": 1, 
+        "name": "Strike",
+        "type": "attack", 
+        "value": 20, 
+        "cost": 1
+    },
+    "Defend": { 
+        "id": 1, 
+        "name": "Defend",
+        "type": "defend", 
+        "value": 20, 
+        "cost": 1
+    }
+}

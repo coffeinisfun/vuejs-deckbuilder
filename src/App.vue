@@ -249,8 +249,13 @@
       endTurn() {
         // Implement end turn logic here
         console.log("End Turn clicked");
+        this.discardAll();
         this.enemyAttacks()
         
+      },
+      async discardAll(){
+        this.cards = [];
+        this.tidyUpCards();
       },
       async enemyAttacks() {
           this.enemyTurn = true;
