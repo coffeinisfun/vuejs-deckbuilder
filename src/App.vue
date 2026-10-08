@@ -1,12 +1,14 @@
 <script setup></script>
 
 <template>
-  <div style="width: 700px; margin: 0 auto;">
+  <div style="width: 1000px; margin: 0 auto;">
     <h1>Card Game</h1>
 
     <div class="bg-container" :style="`background-image: url(${bgImage}); background-size: cover; background-position: center;#
                   width='640';
-                  height='480';`">
+                  height='480';
+                  margin-left: 100px;
+                  `">
       <canvas ref="battle_map" 
                   width="640"
                   height="480"
@@ -40,12 +42,21 @@
           @mousedown="startDrag(index, $event)">
           {{ card.name }}
       </div>
-      <canvas ref="card-table" 
-                  width="640"
-                  height="240"
-                  style="border: 1px solid black;">
-        
-      </canvas> 
+      <div style="display: flex; align-items: center; width: 100%;">
+        <div style="width: 100px; text-align: center;">
+          <div class="card">Draw Pile</div> 
+        </div>
+        <canvas ref="card-table" 
+                    width="640"
+                    height="240"
+                    style="border: 1px solid black;">
+          
+        </canvas> 
+          <!-- Right element -->
+        <div style="width: 100px; text-align: center;">
+          <div class="card">Discard Pile</div>
+        </div>
+      </div> 
       <!-- health bar -->
       <div style="width: 400px; height: 20px; border: 2px solid red; background-color: white; margin: 0 auto;">
         <div :style="{ width: (currentHealth / maxHealth * 100) + '%', height: '100%', backgroundColor: 'limegreen' }">
@@ -161,6 +172,10 @@
         }
       },
       startDrag(index, event) {
+        if (this.enemyTurn) {
+          console.log("It's the enemy's turn. You cannot play cards.");
+          return;
+        }
         this.dragIndex = index;
         let card = this.cards[index];
         if (this.energy < card.cost) {
@@ -235,6 +250,7 @@
         // Implement end turn logic here
         console.log("End Turn clicked");
         this.enemyAttacks()
+        
       },
       async enemyAttacks() {
           this.enemyTurn = true;
@@ -260,7 +276,13 @@
               }
           }
           this.enemyTurn = false;
-      }
+          this.reset()
+      },
+      reset() {
+        this.energy = 3;
+        this.shield = 0;
+        this.tidyUpCards();
+      } 
   }
 }
 </script>
