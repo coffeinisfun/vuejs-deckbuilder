@@ -8,10 +8,24 @@
         "cost": 1
     },
     "Defend": { 
-        "id": 1, 
+        "id": 2, 
         "name": "Defend",
         "type": "defend", 
         "value": 20, 
         "cost": 1
+    },
+    "Bash": { 
+        "id": 3, 
+        "name": "Bash",
+        "type": "attack", 
+        "value": 40, 
+        "cost": 2
+    },
+    "Parry": { 
+        "id": 4, 
+        "name": "Parry",
+        "type": "defend", 
+        "value": 40, 
+        "cost": 2
     }
 }

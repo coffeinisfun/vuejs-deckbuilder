@@ -21,6 +21,19 @@
             }"
             alt="Overlay"
           />
+          <div :style="{
+              position: 'absolute',
+              top: -60 + 'px',
+              width: '100px',
+              height: '20px',
+              pointerEvents: 'none',
+              textAlign: 'center',
+              fontWeight: 'bold',
+              fontSize: '32px',
+              color: 'black',
+            }">
+            {{ props.currentHealth + '/' + props.maxHealth }}
+          </div>
           <div
             :style="{
               position: 'absolute',
@@ -32,6 +45,7 @@
               background: 'white',
             }"
             >
+            
             <div
             :style="{
               height: '100%',
@@ -39,8 +53,8 @@
               background: 'limegreen',
               transition: 'width 0.3s'
             }"
-      >
-    </div>
+            >
+            </div>
           
           </div>
     </div>

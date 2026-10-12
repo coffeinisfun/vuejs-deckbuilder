@@ -2,7 +2,8 @@
 
 <template>
   <div style="width: 1000px; margin: 0 auto;">
-    <h1>Card Game</h1>
+    <h1 :style="{ textAlign: 'center', fontSize: '48px', marginBottom: '20px' }"
+    >Card Game</h1>
 
     <div class="bg-container" :style="`background-image: url(${bgImage}); background-size: cover; background-position: center;#
                   width='640';
@@ -45,6 +46,7 @@
       <div style="display: flex; align-items: center; width: 100%;">
         <div style="width: 100px; text-align: center;">
           <div class="card">Draw Pile</div> 
+          <div> {{ drawPile.length }} </div>
         </div>
         <canvas ref="card-table" 
                     width="640"
@@ -55,6 +57,7 @@
           <!-- Right element -->
         <div style="width: 100px; text-align: center;">
           <div class="card">Discard Pile</div>
+          <div> {{ discardPile.length }} </div>
         </div>
       </div> 
       <!-- health bar -->
@@ -89,9 +92,8 @@
 
 <script setup>
   import Enemy from './components/Enemy.vue'
-
-
   import bgImage from '/background.jpg'; // adjust path as needed
+  import cardPool from '@/assets/card_pool.json'; // adjust path as needed
 </script>
 
 <script>
@@ -102,24 +104,27 @@
         currentHealth: 100,
         shield: 0,
         energy: 3,
+        handSize: 4,
         cards: [
           { id: 1, name: 'Strike', x: 600, y: 650, isDragging: false,
-            type: 'attack', value: 20, cost: 1
+            type: 'attack', value: 20, cost: 1, cardId: 1,
           },
           { id: 2, name: 'Defend', x: 700, y: 650, isDragging: false,
-            type: 'defend', value: 20, cost: 1
+            type: 'defend', value: 20, cost: 1,  cardId: 2,
           },
           { id: 3, name: 'Bash', x: 800, y: 650, isDragging: false,            
-            type: 'attack', value: 40, cost: 2
+            type: 'attack', value: 40, cost: 2,  cardId: 3,
           },
           { id: 4, name: 'Parry', x: 900, y: 650, isDragging: false,
-            type: 'defend', value: 40, cost: 2
+            type: 'defend', value: 40, cost: 2,  cardId: 4,
           },
         ],
+        drawPile: [1,1,2,2,2],
+        discardPile: [],
         enemies: [
-          { id: 1, name: 'Goblin', x: 100, y: 300, currentHealth: 100, maxHealth: 100 },
-          { id: 2, name: 'Goblin', x: 250, y: 300, currentHealth: 100, maxHealth: 100 },
-          { id: 3, name: 'Goblin', x: 400, y: 300, currentHealth: 100, maxHealth: 100 },
+          { id: 1, name: 'Goblin', x: 100, y: 300, currentHealth: 60, maxHealth: 60 },
+          { id: 2, name: 'Goblin', x: 250, y: 300, currentHealth: 60, maxHealth: 60 },
+          { id: 3, name: 'Goblin', x: 400, y: 300, currentHealth: 60, maxHealth: 60 },
         ],
         enemyRefs: {},
         enemyRects: {},
@@ -145,7 +150,7 @@
         let i = 0;
         for (const card of this.cards) {
           const dist = 640/this.cards.length
-          card.x = 620 + i * dist; // Reset x position
+          card.x = 590 + i * dist; // Reset x position
           card.y = 600; // Reset y position
           card.orig_x = card.x; // Store original x position
           card.orig_y = card.y; // Store original y position
@@ -206,6 +211,10 @@
             if (enemy) {
               enemy.currentHealth -= card.value;
               if (enemy.currentHealth < 0) enemy.currentHealth = 0;
+              if (enemy.currentHealth === 0) {
+                console.log(`Enemy ${enemy.name} defeated!`);
+                this.enemies = this.enemies.filter(e => e.id !== enemy.id);
+              }
             }
 
           }
@@ -217,6 +226,7 @@
           this.energy -= card.cost;
           //remove the dragged card
           this.cards.splice(this.dragIndex, 1);
+          this.discardPile.push(card.cardId);
           this.tidyUpCards();
         }
         else{
@@ -254,6 +264,9 @@
         
       },
       async discardAll(){
+        for (const card of this.cards) {
+          this.discardPile.push(card.cardId);
+        }
         this.cards = [];
         this.tidyUpCards();
       },
@@ -286,8 +299,44 @@
       reset() {
         this.energy = 3;
         this.shield = 0;
+        this.drawHand();
         this.tidyUpCards();
-      } 
+      },
+      drawHand() {
+        // Example logic to draw cards from the draw pile
+        const newCards = [];
+        for (let i = 0; i < this.handSize; i++) {
+          if (this.drawPile.length <= 0) {
+            this.shuffle()
+          }
+          //random from drawPile
+          const randomIndex = Math.floor(Math.random() * this.drawPile.length);
+          const cardId = this.drawPile[randomIndex];
+          this.drawPile.splice(randomIndex, 1);
+
+          //get card from cardPool
+          const cardData = Object.values(cardPool).find(c => c.id === cardId);
+          if (cardData) {
+            newCards.push({
+              ...cardData,
+              x: 620 + i * (640 / 5), // Position cards evenly
+              y: 600,
+              isDragging: false,
+              orig_x: 620 + i * (640 / 5),
+              orig_y: 600,
+              cardId: cardData.id, // Store the original card ID
+            });
+          }
+          
+        }
+        this.cards = newCards;
+      },
+      shuffle() {
+        console.log("Shuffling draw pile");
+        // Shuffle discard pile into the draw pile
+        this.drawPile = [...this.discardPile];
+        this.discardPile = [];
+      }
   }
 }
 </script>
